@@ -1,31 +1,43 @@
 class Solution:
     def sortArray(self, nums):
-        def merge_sort(arr):
-            if len(arr) <= 1:
-                return arr
+        temp = [0] * len(nums)
 
-            mid = len(arr) // 2
-            left = merge_sort(arr[:mid])
-            right = merge_sort(arr[mid:])
+        def merge_sort(left, right):
+            if left >= right:
+                return
 
-            return merge(left, right)
+            mid = (left + right) // 2
+            merge_sort(left, mid)
+            merge_sort(mid + 1, right)
 
-        def merge(left, right):
-            i = j = 0
-            result = []
+            merge(left, mid, right)
 
-            while i < len(left) and j < len(right):
-                if left[i] < right[j]:
-                    result.append(left[i])
+        def merge(left, mid, right):
+            i = left
+            j = mid + 1
+            k = left
+
+            while i <= mid and j <= right:
+                if nums[i] <= nums[j]:
+                    temp[k] = nums[i]
                     i += 1
                 else:
-                    result.append(right[j])
+                    temp[k] = nums[j]
                     j += 1
+                k += 1
 
-            # Add remaining elements
-            result.extend(left[i:])
-            result.extend(right[j:])
+            while i <= mid:
+                temp[k] = nums[i]
+                i += 1
+                k += 1
 
-            return result
+            while j <= right:
+                temp[k] = nums[j]
+                j += 1
+                k += 1
 
-        return merge_sort(nums)
+            for i in range(left, right + 1):
+                nums[i] = temp[i]
+
+        merge_sort(0, len(nums) - 1)
+        return nums
