@@ -1,0 +1,39 @@
+name: Auto-Update LeetCode Progress Chart
+
+on:
+  push:
+    paths:
+      - "data/solved.json"
+  schedule:
+    - cron: "0 0 * * *"   # every day at 00:00 UTC
+  workflow_dispatch:        # allows manual "Run workflow" trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  update-chart:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install matplotlib
+
+      - name: Generate progress chart
+        run: python scripts/generate_stats.py
+
+      - name: Commit updated chart
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add assets/progress_chart.png
+          git diff --staged --quiet || git commit -m "chore: auto-update progress chart [skip ci]"
+          git push
